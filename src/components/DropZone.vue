@@ -28,7 +28,7 @@ const active = ref(false);
 const selectedFile = ref({});
 
 // on change emit selected file
-const emits = defineEmits(["change"])
+const emits = defineEmits(["change"]);
 
 const toggleActive = () => {
   active.value = !active.value;
@@ -57,7 +57,7 @@ const readFiles = (files) => {
           content: reader.result,
         };
         emits("change", selectedFile.value);
-      }  else {
+      } else {
         console.log(`Unsupported file type: ${file.type}`);
       }
     };
@@ -95,7 +95,7 @@ const isTextFile = (file) => {
     file.name.endsWith(".dart") ||
     file.name.endsWith(".go")
   );
-}
+};
 </script>
 
 <style scoped lang="scss">
@@ -107,7 +107,7 @@ const isTextFile = (file) => {
   justify-content: center;
   align-items: center;
   gap: 16px;
-  border: 2px dashed #2f80ed;
+  border: 2px solid #2f80ed;
   background-color: #0f0f1a;
   color: #fff;
   transition: 0.3s ease all;

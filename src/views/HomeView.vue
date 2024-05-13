@@ -4,21 +4,33 @@
 
     <h1>Dodajte datoteku</h1>
     <DropZone @drop.prevent="drop" @change="selectedFile" />
-    <span v-if="file_name" class="file-info"
-      >Datoteka: {{ file_name }}</span
-    >
-    <p v-if="error" style="color: red;">Nešto je pošlo po krivu</p>
-    <div v-else-if="file_name">
-      <p>Vjerovatnost korištenja AI alata: {{ response.fake_probability.toFixed(2) }}%</p>
+
+    <div class="info-container" v-if="file_name">
+      <div class="file-info">
+        <span>Datoteka:</span>
+        <input
+          type="text"
+          :value="file_name"
+          readonly
+          class="file-name-input"
+        />
+      </div>
+      <div class="ai-info">
+        <p>
+          Vjerojatnost korištenja AI alata:
+          {{ response.fake_probability.toFixed(2) }}%
+        </p>
+      </div>
     </div>
+
+    <!-- Display error message if there's an error -->
+    <p v-if="error" class="error-message">Nešto je pošlo po krivu</p>
   </div>
 </template>
 
-<script setup
->
+<script setup>
 import DropZone from "@/components/DropZone.vue";
 import { ref } from "vue";
-
 
 const dropzoneFile = ref({});
 const file_name = ref("");
@@ -37,7 +49,7 @@ const selectedFile = (file) => {
   fetch("http://127.0.0.1:8000/detect-ai", {
     method: "POST",
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      "Access-Control-Allow-Origin": "*",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ text: file.content }),
@@ -60,10 +72,11 @@ const selectedFile = (file) => {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   background-color: #1a1a2e;
   color: #fff;
+  padding-top: 80px;
 }
 
 .page-header {
@@ -80,11 +93,55 @@ const selectedFile = (file) => {
 
 h1 {
   font-size: 40px;
-  margin-bottom: 32px;
+  margin-bottom: 16px;
+}
+span {
+  font-size: 17px;
+  color: #fff;
+}
+
+.info-container {
+  margin-top: 32px;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #155ab4;
+  width: fit-content;
 }
 
 .file-info {
-  margin-top: 32px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.file-info span {
   color: #ccc;
+  margin-right: 10px;
+  flex: 0 0 auto;
+}
+
+.file-name-input {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  background-color: #1a1a2e;
+  color: #fff;
+  font-size: 16px;
+}
+
+.ai-info {
+  text-align: center;
+}
+
+.ai-info p {
+  font-size: 18px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.error-message {
+  margin-top: 16px;
+  color: red;
 }
 </style>
