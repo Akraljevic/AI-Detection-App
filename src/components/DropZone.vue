@@ -16,86 +16,86 @@
       class="dropzoneFile"
       ref="fileInput"
       @change="handleFileSelection"
-      multiple
     />
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref } from "vue";
+import { defineEmits } from "vue";
 
-export default {
-  name: "DropZone",
-  setup() {
-    const active = ref(false);
+const active = ref(false);
+const selectedFile = ref({});
 
-    const toggleActive = () => {
-      active.value = !active.value;
-    };
+// on change emit selected file
+const emits = defineEmits(["change"])
 
-    const handleDrop = (event) => {
-      toggleActive();
-
-      const files = event.dataTransfer.files;
-      readFiles(files);
-    };
-
-    const handleFileSelection = (event) => {
-      const files = event.target.files;
-      readFiles(files);
-    };
-
-    const readFiles = (files) => {
-      Array.from(files).forEach((file) => {
-        const reader = new FileReader();
-
-        reader.onload = () => {
-          if (isTextFile(file)) {
-            console.log(`File name: ${file.name}`);
-            console.log(`File content: ${reader.result}`);
-          } else if (isSupportedDocument(file)) {
-            console.log(`File name: ${file.name}`);
-            console.log(`Document format: ${file.type}`);
-            // U konzoli ispisano ime i format dokumenta koji je priložen
-          } else {
-            console.log(`Unsupported file type: ${file.type}`);
-          }
-        };
-
-        reader.readAsText(file);
-      });
-    };
-
-    const isTextFile = (file) => {
-      // Provjerava da li je datoteka podržanog tipa teksta (npr., .txt, .csv, .json, .xml, .html)
-      return (
-        file.type.startsWith("text") ||
-        file.name.endsWith(".txt") ||
-        file.name.endsWith(".csv") ||
-        file.name.endsWith(".json") ||
-        file.name.endsWith(".xml") ||
-        file.name.endsWith(".html")
-      );
-    };
-
-    const isSupportedDocument = (file) => {
-      // Provjerava je li dokument podržanog formata (npr. Word, PDF)
-      return (
-        file.type === "application/pdf" ||
-        file.type ===
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-        file.type === "application/msword" ||
-        file.type === "application/vnd.ms-excel" ||
-        file.name.endsWith(".docx") ||
-        file.name.endsWith(".pdf") ||
-        file.name.endsWith(".xls") ||
-        file.name.endsWith(".ppt")
-      );
-    };
-
-    return { active, toggleActive, handleDrop, handleFileSelection };
-  },
+const toggleActive = () => {
+  active.value = !active.value;
 };
+
+const handleDrop = (event) => {
+  toggleActive();
+
+  const files = event.dataTransfer.files;
+  readFiles(files);
+};
+
+const handleFileSelection = (event) => {
+  const files = event.target.files;
+  readFiles(files);
+};
+
+const readFiles = (files) => {
+  Array.from(files).forEach((file) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (isTextFile(file)) {
+        selectedFile.value = {
+          name: file.name,
+          content: reader.result,
+        };
+        emits("change", selectedFile.value);
+      }  else {
+        console.log(`Unsupported file type: ${file.type}`);
+      }
+    };
+
+    reader.readAsText(file);
+  });
+};
+
+const isTextFile = (file) => {
+  // Provjerava da li je datoteka podržanog tipa teksta (npr., .txt, .csv, .json, .xml, .html)
+  // Također provjeri da li je tip datoteke programerski tekstualni
+  return (
+    file.type.startsWith("text") ||
+    file.name.endsWith(".txt") ||
+    file.name.endsWith(".csv") ||
+    file.name.endsWith(".json") ||
+    file.name.endsWith(".xml") ||
+    file.name.endsWith(".html") ||
+    file.name.endsWith(".js") ||
+    file.name.endsWith(".css") ||
+    file.name.endsWith(".py") ||
+    file.name.endsWith(".java") ||
+    file.name.endsWith(".cpp") ||
+    file.name.endsWith(".c") ||
+    file.name.endsWith(".h") ||
+    file.name.endsWith(".hpp") ||
+    file.name.endsWith(".cs") ||
+    file.name.endsWith(".php") ||
+    file.name.endsWith(".rb") ||
+    file.name.endsWith(".sh") ||
+    file.name.endsWith(".sql") ||
+    file.name.endsWith(".pl") ||
+    file.name.endsWith(".swift") ||
+    file.name.endsWith(".kt") ||
+    file.name.endsWith(".dart") ||
+    file.name.endsWith(".go")
+  );
+}
 </script>
 
 <style scoped lang="scss">

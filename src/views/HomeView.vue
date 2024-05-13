@@ -4,37 +4,54 @@
 
     <h1>Dodajte datoteku</h1>
     <DropZone @drop.prevent="drop" @change="selectedFile" />
-    <span v-if="dropzoneFile" class="file-info"
-      >Datoteka: {{ dropzoneFile.name }}</span
+    <span v-if="file_name" class="file-info"
+      >Datoteka: {{ file_name }}</span
     >
+    <p v-if="error" style="color: red;">Nešto je pošlo po krivu</p>
+    <div v-else-if="file_name">
+      <p>Vjerovatnost korištenja AI alata: {{ response.fake_probability.toFixed(2) }}%</p>
+    </div>
   </div>
 </template>
 
-<script>
+<script setup
+>
 import DropZone from "@/components/DropZone.vue";
 import { ref } from "vue";
 
-export default {
-  name: "HomeView",
-  components: {
-    DropZone,
-  },
-  setup() {
-    let dropzoneFile = ref({});
 
-    const drop = (e) => {
-      dropzoneFile.value = e.dataTransfer.files[0];
-    };
+const dropzoneFile = ref({});
+const file_name = ref("");
+const error = ref(false);
+const response = ref({
+  fake_probability: 0,
+  real_probability: 0,
+});
+const drop = (e) => {
+  dropzoneFile.value = e.dataTransfer.files[0];
+};
 
-    const selectedFile = () => {
-      const files = document.querySelector(".dropzoneFile").files;
-      if (files.length > 0) {
-        dropzoneFile.value = files[0];
-      }
-    };
-
-    return { dropzoneFile, drop, selectedFile };
-  },
+const selectedFile = (file) => {
+  console.log(file);
+  // make a request to the server of url 127.0.0.1:8081 with post method and paramether of "text": file.content
+  fetch("http://127.0.0.1:8000/detect-ai", {
+    method: "POST",
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ text: file.content }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      error.value = false;
+      file_name.value = file.name;
+      response.value.fake_probability = data.fake_probability;
+      response.value.real_probability = data.real_probability;
+    })
+    .catch((error) => {
+      error.value = true;
+    });
 };
 </script>
 
